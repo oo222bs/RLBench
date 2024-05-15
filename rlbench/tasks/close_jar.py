@@ -58,6 +58,6 @@ class CloseJar(Task):
                                             Tuple[float, float, float]]:
         # This is here to stop the issue of gripper rotation joint reaching its
         # limit and not being able to go through the full range of rotation to
-        # unscrew, leading to a weird jitery and tilted cap while unscrewing.
-        # Issue occured rarely so is only minor
+        # unscrew, leading to a weird jittery and tilted cap while unscrewing.
+        # Issue occurred rarely so is only minor
         return (0.0, 0.0, -0.6*np.pi), (0.0, 0.0, +0.6*np.pi)

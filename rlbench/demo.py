@@ -15,4 +15,5 @@ class Demo(object):
         return self._observations[i]
 
     def restore_state(self):
-        np.random.set_state(self.random_seed)
+        if self.random_seed is not None:
+            np.random.set_state(self.random_seed)

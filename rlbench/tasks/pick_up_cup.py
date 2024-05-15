@@ -2,10 +2,21 @@ from typing import List
 import numpy as np
 from pyrep.objects.shape import Shape
 from pyrep.objects.proximity_sensor import ProximitySensor
-from rlbench.const import colors
+#from rlbench.const import colors
 from rlbench.backend.task import Task
 from rlbench.backend.conditions import DetectedCondition, NothingGrasped, GraspedCondition
 from rlbench.backend.spawn_boundary import SpawnBoundary
+
+colors = [
+    ('blue', (0.0, 0.0, 1.0)),
+    ('yellow', (1.0, 1.0, 0.0)),
+    ('cyan', (0.0, 1.0, 1.0)),
+    ('orange', (1.0, 0.5, 0.0)),
+    ('purple', (0.5, 0.0, 0.5)),
+    ('rose', (1.0, 0.0, 0.5)),
+    ('black', (0.0, 0.0, 0.0)),
+    ('white', (1.0, 1.0, 1.0)),
+]
 
 
 class PickUpCup(Task):

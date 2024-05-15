@@ -9,31 +9,51 @@ from rlbench.backend.task import Task
 from rlbench.backend.spawn_boundary import SpawnBoundary
 from rlbench.backend.conditions import JointCondition, ConditionSet
 
-MAX_TARGET_BUTTONS = 3
-MAX_VARIATIONS = 50
+MAX_TARGET_BUTTONS = 1  #3
+MAX_VARIATIONS = 120 #336  #50
 
 # button top plate and wrapper will be be red before task completion
 # and be changed to cyan upon success of task, so colors list used to randomly vary colors of
 # base block will be redefined, excluding red and green
+# colors = [
+#     ('maroon', (0.5, 0.0, 0.0)),
+#     ('green', (0.0, 0.5, 0.0)),
+#     ('blue', (0.0, 0.0, 1.0)),
+#     ('navy', (0.0, 0.0, 0.5)),
+#     ('yellow', (1.0, 1.0, 0.0)),
+#     ('cyan', (0.0, 1.0, 1.0)),
+#     ('magenta', (1.0, 0.0, 1.0)),
+#     ('silver', (0.75, 0.75, 0.75)),
+#     ('gray', (0.5, 0.5, 0.5)),
+#     ('orange', (1.0, 0.5, 0.0)),
+#     ('olive', (0.5, 0.5, 0.0)),
+#     ('purple', (0.5, 0.0, 0.5)),
+#     ('teal', (0, 0.5, 0.5)),
+#     ('azure', (0.0, 0.5, 1.0)),
+#     ('violet', (0.5, 0.0, 1.0)),
+#     ('rose', (1.0, 0.0, 0.5)),
+#     ('black', (0.0, 0.0, 0.0)),
+#     ('white', (1.0, 1.0, 1.0)),
+# ]
+
+# colors = [
+#    ('blue', (0.0, 0.0, 1.0)),
+#    ('yellow', (1.0, 1.0, 0.0)),
+#    ('cyan', (0.0, 1.0, 1.0)),
+#    ('orange', (1.0, 0.5, 0.0)),
+#    ('purple', (0.5, 0.0, 0.5)),
+#    ('rose', (1.0, 0.0, 0.5)),
+#    ('black', (0.0, 0.0, 0.0)),
+#    ('white', (1.0, 1.0, 1.0)),
+# ]
+
 colors = [
-    ('maroon', (0.5, 0.0, 0.0)),
-    ('green', (0.0, 0.5, 0.0)),
     ('blue', (0.0, 0.0, 1.0)),
-    ('navy', (0.0, 0.0, 0.5)),
     ('yellow', (1.0, 1.0, 0.0)),
     ('cyan', (0.0, 1.0, 1.0)),
-    ('magenta', (1.0, 0.0, 1.0)),
-    ('silver', (0.75, 0.75, 0.75)),
-    ('gray', (0.5, 0.5, 0.5)),
     ('orange', (1.0, 0.5, 0.0)),
-    ('olive', (0.5, 0.5, 0.0)),
     ('purple', (0.5, 0.0, 0.5)),
-    ('teal', (0, 0.5, 0.5)),
-    ('azure', (0.0, 0.5, 1.0)),
-    ('violet', (0.5, 0.0, 1.0)),
     ('rose', (1.0, 0.0, 0.5)),
-    ('black', (0.0, 0.0, 0.0)),
-    ('white', (1.0, 1.0, 1.0)),
 ]
 
 color_permutations = list(itertools.permutations(colors, 3))
@@ -145,7 +165,7 @@ class PushButtons(Task):
 
     def step(self) -> None:
         for i in range(len(self.target_buttons)):
-            if self.goal_conditions[i].condition_met() == (True, True):
+            if self.goal_conditions[i].condition_met() == (True, False):
                 self.target_topPlates[i].set_color([0.0, 1.0, 0.0])
                 self.target_wraps[i].set_color([0.0, 1.0, 0.0])
 

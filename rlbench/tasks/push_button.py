@@ -56,6 +56,6 @@ class PushButton(Task):
         return len(colors)
 
     def step(self) -> None:
-        if self.goal_condition.condition_met() == (True, True):
+        if self.goal_condition.condition_met() == (True, False):
             self.target_topPlate.set_color([0.0, 1.0, 0.0])
             self.target_wrap.set_color([0.0, 1.0, 0.0])

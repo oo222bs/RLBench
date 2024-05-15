@@ -24,15 +24,20 @@ def assert_unit_quaternion(quat):
         raise InvalidActionError('Action contained non unit quaternion!')
 
 
+#def calculate_delta_pose(robot: Robot, action: np.ndarray):
+#    a_x, a_y, a_z, a_qx, a_qy, a_qz, a_qw = action
+#    x, y, z, qx, qy, qz, qw = robot.arm.get_tip().get_pose()
+#    new_rot = Quaternion(
+#        a_qw, a_qx, a_qy, a_qz) * Quaternion(qw, qx, qy, qz)
+#    qw, qx, qy, qz = list(new_rot)
+#    pose = [a_x + x, a_y + y, a_z + z] + [qx, qy, qz, qw]
+#    return pose
+
 def calculate_delta_pose(robot: Robot, action: np.ndarray):
     a_x, a_y, a_z, a_qx, a_qy, a_qz, a_qw = action
     x, y, z, qx, qy, qz, qw = robot.arm.get_tip().get_pose()
-    new_rot = Quaternion(
-        a_qw, a_qx, a_qy, a_qz) * Quaternion(qw, qx, qy, qz)
-    qw, qx, qy, qz = list(new_rot)
-    pose = [a_x + x, a_y + y, a_z + z] + [qx, qy, qz, qw]
+    pose = [a_x + x, a_y + y, a_z + z] + [a_qx + qx, a_qy + qy, a_qz + qz, a_qw + qw]
     return pose
-
 
 class ArmActionMode(object):
 
@@ -71,12 +76,12 @@ class JointVelocity(ArmActionMode):
 class JointPosition(ArmActionMode):
     """Control the target joint positions (absolute or delta) of the arm.
 
-    The action mode opoerates in absolute mode or delta mode, where delta
+    The action mode operates in absolute mode or delta mode, where delta
     mode takes the current joint positions and adds the new joint positions
     to get a set of target joint positions. The robot uses a simple control
     loop to execute until the desired poses have been reached.
-    It os the users responsibility to ensure that the action lies within
-    a usuable range.
+    It is the users responsibility to ensure that the action lies within
+    a usable range.
     """
 
     def __init__(self, absolute_mode: bool = True):
@@ -85,18 +90,27 @@ class JointPosition(ArmActionMode):
             absolute_mode: If we should opperate in 'absolute', or 'delta' mode.
         """
         self._absolute_mode = absolute_mode
+        self._callable_each_step = None
 
     def action(self, scene: Scene, action: np.ndarray):
         assert_action_shape(action, self.action_shape(scene))
         a = action if self._absolute_mode else np.array(
             scene.robot.arm.get_joint_positions()) + action
-        scene.robot.arm.set_joint_target_positions(a)
-        scene.step()
-        scene.robot.arm.set_joint_target_positions(
-            scene.robot.arm.get_joint_positions())
+        scene.robot.arm.set_joint_positions(a, True)
+        #scene.robot.arm.set_joint_target_positions(a)
+        #scene.step()
+        #scene.robot.arm.set_joint_target_positions(
+        #    scene.robot.arm.get_joint_positions())
 
     def action_shape(self, scene: Scene) -> tuple:
         return SUPPORTED_ROBOTS[scene.robot_setup][2],
+
+    def record_end(self, scene, steps=60, step_scene=True):
+        if self._callable_each_step is not None:
+            for _ in range(steps):
+                if step_scene:
+                    scene.step()
+                self._callable_each_step(scene.get_observation())
 
 
 class JointTorque(ArmActionMode):
@@ -305,12 +319,32 @@ class EndEffectorPoseViaIK(ArmActionMode):
             raise ValueError(
                 "Expected frame to one of: 'world, 'end effector'")
 
-    def action(self, scene: Scene, action: np.ndarray):
+    def action(self, scene: Scene, action: np.ndarray, ignore_collisions: bool = True):
         assert_action_shape(action, (7,))
-        assert_unit_quaternion(action[3:])
+        #assert_unit_quaternion(action[3:])
         if not self._absolute_mode and self._frame != 'end effector':
             action = calculate_delta_pose(scene.robot, action)
         relative_to = None if self._frame == 'world' else scene.robot.arm.get_tip()
+
+        colliding_shapes = []
+        if not ignore_collisions:
+            if self._robot_shapes is None:
+                self._robot_shapes = scene.robot.arm.get_objects_in_tree(
+                    object_type=ObjectType.SHAPE)
+            # First check if we are colliding with anything
+            colliding = scene.robot.arm.check_arm_collision()
+            if colliding:
+                # Disable collisions with the objects that we are colliding with
+                grasped_objects = scene.robot.gripper.get_grasped_objects()
+                colliding_shapes = [
+                    s for s in scene.pyrep.get_objects_in_tree(
+                        object_type = ObjectType.SHAPE) if (
+                            s.is_collidable() and
+                            s not in self._robot_shapes and
+                            s not in grasped_objects and
+                            scene.robot.arm.check_arm_collision(
+                                s))]
+                [s.set_collidable(False) for s in colliding_shapes]
 
         try:
             joint_positions = scene.robot.arm.solve_ik_via_jacobian(

@@ -54,23 +54,29 @@ class Discrete(GripperActionMode):
         action = float(action[0] > 0.5)
 
         if current_ee != action:
+            # if action==1.0:
+            # 	scene.robot.gripper.set_joint_positions([0.04000326246023178, 0.03999818488955498], True)
+            # else:
+            # 	scene.robot.gripper.set_joint_positions([0.004365857690572739, 0.004191190004348755], True)
+            # scene.pyrep.step()
+            # scene.task.step()	
             done = False
             if not self._detach_before_open:
-                self._actuate(scene, action)
+               self._actuate(scene, action)
             if action == 0.0 and self._attach_grasped_objects:
-                # If gripper close action, the check for grasp.
-                for g_obj in scene.task.get_graspable_objects():
-                    scene.robot.gripper.grasp(g_obj)
+               # If gripper close action, the check for grasp.
+               for g_obj in scene.task.get_graspable_objects():
+                   scene.robot.gripper.grasp(g_obj)
             else:
-                # If gripper open action, the check for un-grasp.
-                scene.robot.gripper.release()
+               # If gripper open action, the check for un-grasp.
+               scene.robot.gripper.release()
             if self._detach_before_open:
-                self._actuate(scene, action)
+               self._actuate(scene, action)
             if action == 1.0:
-                # Step a few more times to allow objects to drop
-                for _ in range(10):
-                    scene.pyrep.step()
-                    scene.task.step()
+               # Step a few more times to allow objects to drop
+               for _ in range(10):
+                   scene.pyrep.step()
+                   scene.task.step()
 
     def action_shape(self, scene: Scene) -> tuple:
         return 1,
