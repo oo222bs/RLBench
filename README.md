@@ -1,15 +1,6 @@
 # RLBench: Robot Learning Benchmark [![Unit Tests](https://github.com/stepjam/RLBench/workflows/Unit%20Tests/badge.svg)](https://github.com/stepjam/RLBench/actions) [![Task Tests](https://github.com/stepjam/RLBench/workflows/Task%20Tests/badge.svg)](https://github.com/stepjam/RLBench/actions) [![Discord](https://img.shields.io/discord/694945190867370155.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/DXPCjmd)
 
 ![task grid image missing](readme_files/task_grid.png)
-
-## Modifications
- This is my fork of RLBench. Modifications include:
-- 6 new tasks, bug fixes, and extensions of existing tasks. See Appendix A in the [paper](https://peract.github.io/) for details.
-- Data generation also records if `ignore_collisions` was used with a waypoint for motion-planning. 
-- `data_generator.py` supports an "all_variations" setting that samples from all possible task variations. 
-
-I branched off `master` in Feb 2022, so this fork is not up to date with the latest changes in the official repo.
-
 ## RLBench
 
 **RLBench** is an ambitious large-scale benchmark and learning environment 
